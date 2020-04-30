@@ -1,47 +1,72 @@
-# **Finding Lane Lines on the Road** 
-
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
+# **Finding Lane Lines on the Road**
 
 ---
 
-**Finding Lane Lines on the Road**
+The aim of this project are the following:
 
-The goals / steps of this project are the following:
 * Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
+* Use this pipeline to detect lane lines on a continuous video stream
 
+[image0]: ./test_images/solidWhiteCurve.jpg "Colour Image"
+[image1]: ./test_images_output/Gray-solidWhiteCurve.jpg "Grayscale"
+[image2]: ./test_images_output/solidWhiteCurve.jpg "Lane Lines"
+[image3]: ./test_images_output/Canny-solidWhiteCurve.jpg "Canny Edges"
 
-[//]: # (Image References)
+---
+Dependencies:
 
-[image1]: ./examples/grayscale.jpg "Grayscale"
+* Python 3
+* OpenCV & numpy - Image/Video processing toolkit
+* Matplotlib - Display the Images/Videos
+* PIL - Reading images
+* moviepy - Creating animated videos and GIF's
 
 ---
 
-### Reflection
+### **1. Reading Images**
 
-### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+The images are read in colour format of 3 channels [BGR] and each pixel is of 8-bit i.e 0-255.
 
-My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I .... 
+![Original colour image][image0]
 
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
+Images are converted to grayscale reducing them to single channel images.
 
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
+A gaussian filter of kernel size 5 is convoluted on the image to reduce unwanted noice and blur out the image.
 
-![alt text][image1]
+![pre-processed grayscale image][image1]
 
+### **2. Extracting features**
 
-### 2. Identify potential shortcomings with your current pipeline
+Lane line signify coloured (mostly white) strip on black roads, To detect these the best method is to find sharp edges in the image.
 
+The Grayscale image is passed through a canny edge detector, which return all the edges above a certain tunable threshold.
 
-One potential shortcoming would be what would happen when ... 
+![Cann edge Output][image3]
 
-Another shortcoming could be ...
+Since only a certain region of the image can contain these strips, An polygonal ROI is created which holds only lanes.
 
+This ROI is used to calculate Hough Lines which are essentially an approximate line drawn through the points on the lane.
 
-### 3. Suggest possible improvements to your pipeline
+In order to calculate a resultant and consistant line, all the found lines are averaged to replace multiple lines with a single representative accurate line.
 
-A possible improvement would be to ...
+These lines are then plotted on the image highlighting the lane lines in the image.
 
-Another potential improvement could be to ...
+![Final Output][image2]
+
+---
+
+## Potential shortcomings with current pipeline
+
+Not robust for diffferent lighting conditions
+
+Camera positioning can alter result
+
+Dependent on hand tuned parameters which cannot be generalized
+
+---
+
+## Suggest possible improvements to your pipeline
+
+Train a CNN to detect lane lines
+
+Using night vison cameras may solve lighting problems
