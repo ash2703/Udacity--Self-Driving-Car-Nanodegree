@@ -1,27 +1,5 @@
-## Advanced Lane Finding
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-[image0]: ./output_images/Corrected-image.png "Distortion Corrected image"
-[image1]: ./output_images/lane-detected-radius.png "Grayscale"
-[image2]: ./output_images/lane-detected.png "Lane Lines"
-[image3]: ./output_images/line-fitted.png "Canny Edges"
-[image4]: ./output_images/warped-image.png "Canny Edges"
-
-
-![Original colour image][image0]
-
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
----
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
-
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
-
-The Project
----
+## Advanced Lane Finding Project
 
 The goals / steps of this project are the following:
 
@@ -34,14 +12,133 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
+[//]: # (Image References)
+[image1]: ./camera_cal/calibration2.jpg "Distorted"
+[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
+[image7]: ./examples/window_hist.png "Histogram"
+[image8]: ./examples/find_peaks.png "Histogram peaks"
+[image9]: ./examples/slide_histogram.png "Slide Histogram"
+[image10]: ./examples/differential-eqn.png "differential equation"
+[image11]: ./examples/formula.png "Simplified Formula"
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `output_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+[image12]: ./examples/second-derivative.png "Second order derivative"
+[video1]: ./project_video.mp4 "Video"
+[outimage0]: ./output_images/Corrected-image.png "Distortion Corrected image"
+[outimage1]: ./output_images/lane-detected-radius.png "Calculate Radius"
+[outimage2]: ./output_images/lane-detected.png "Lane Lines detected"
+[outimage3]: ./output_images/line-fitted.png "Polynomial fitting using histogram sliding"
+[outimage4]: ./output_images/warped-image.png "Bird-eye-view"
+[outimage5]: ./output_images/stacked-threshold-gif.gif "Stacked threshold GIF"
+[outimage6]: ./output_images/distortion-corrected.png "Corrected Image"
+[outimage7]: ./output_images/line-fitted.png "polynomial fit lines"
+[outvideo0]: ./output_images/project_video-out.mp4 "Final video output"
+---
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
+### End-to-End Lane Detection
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
+### 1. Camera Calibration
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+The code for this step is contained in the function `get_cal_matrix` of the IPython notebook located in `Advanced_Lane_Detection.ipynb`  
 
+Create "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world, assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it for every calibration image. `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+
+The output `objpoints` and `imgpoints` are used to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function. This distortion correction is applied to the test image using the `cv2.undistort()` function and obtained this result:
+
+Distorted Image         |  Undistorted Image
+:-------------------------:|:-------------------------:
+![alt-text-1][image1] |  ![alt-text-2][outimage0]
+
+### Pipeline (single images)
+
+### Example of a distortion-corrected image
+
+![alt text][outimage6]
+
+#### 2. Thresholding
+
+A combination of color and gradient thresholds is used to generate a binary image (thresholding is performed in function `pipeline`).  This involves 5 different thresholding methods
+
+* Edge detection in x-axis
+* Edge detection in y-axis
+* Magnitude of edge in both direction
+* Direction of edges in image
+* Saturation value in HLS color space
+
+![alt text][outimage5]
+
+#### 3. Image Perspective Transform
+
+Perspective transform means mapping each pixel in input image to some another coordinate in order to get a different view of the image. In this case the pixels are mapped to get a birds-eye-view image in order to effeciently calculate the lane lines. The perspective matrix is calculayed using the function `getPerspectiveMatrix`. The function requires source and destination points for calculating the transforms.
+
+This resulted in the following source and destination points:
+
+                | Source        | Destination   |
+                |:-------------:|:-------------:|
+                | 200, 720      | 310, 720      |
+                | 590, 450      | 310, 0        |
+                | 690,450       | 900,0         |
+                | 1120, 720     | 900, 720      |
+
+![alt text][image4]
+
+#### 4. Lane Identification Using Sliding Histogram
+
+* Calculate histogram along all the columns in the lower half of the image
+
+![alt text][image7]
+
+* Identify peaks by finding maximum value of these peals in left and right part of image
+
+![alt text][image8]
+
+* Considering these two peaks as start of lane move up to find complete lane
+
+* Divide the image in multiple windows which will be used for sliding the histogram
+
+* Calculate rectangles which will bound the pixels above a certain threshold, every time threshold is reached move the rectange one window up and set it's current position as mean of pixels in previous rectangle
+
+![alt text][image9]
+
+* Store the coordinates of each pixel in these rectangle, use these to fit a polynomial describing the lane lines
+
+![alt text][outimage7]
+
+#### 5. Calculate curvature of lanes
+
+Once we have found the polynomials fitting the lane lines we can easily calculate the radius of curvature of these lines
+
+The radius of curvature at any point x of the function x = f(y) is given as follows:
+
+![alt text][image10]
+
+In the case of the second order polynomial above, the first and second derivatives are:
+
+![alt text][image12]
+
+Equation for radius of curvature becomes:
+
+![alt text][image11]
+
+#### 6. Inverse transform and projection on original image
+
+The function `detectLaneLine` takes an image as input and returns the finl output as lane lines segmented and plotted on the original image along with the radius of curvature
+
+![alt text][outimage1]
+
+---
+
+### Pipeline (video)
+
+#### 1. Processing Videos
+
+Here's a [link to my video result][outvideo0]
+
+---
+
+### Discussion
+
+#### 1. Issues and Fixes
+
+* Even though the lane lines are more accurate and robust in adverse conditions such as change in brightness and scenary, it is still not general.
+* The projection matrix is hardcoded and may change if road starts banking.
+* Thresholds are hard coded and cannot be generalised  
