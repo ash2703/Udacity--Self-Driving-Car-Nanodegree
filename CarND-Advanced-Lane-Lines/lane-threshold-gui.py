@@ -122,21 +122,29 @@ cv2.createTrackbar(s_thresh_high_name, window_detection_name , s_thresh_high, ma
 
 
 mtx, dist = get_cal_matrix()
-image = cv2.imread("CarND-Advanced-Lane-Lines/test_images/test1.jpg")
+image = cv2.imread("CarND-Advanced-Lane-Lines/test_images/test5.jpg")
 # print(image.shape)
 image = cal_image(image, mtx, dist)
 while True:
     # (201, 255) (161, 234) (169, 255) (65, 90) (140, 255)
+    #(22, 83) (30, 99) (45, 207) (42, 79) (0, 255)
     abs_threshx = (abs_threshx_low, abs_threshx_high)
     abs_threshy = (abs_threshy_low, abs_threshy_high)
     mag_thresh = (mag_thresh_low, mag_thresh_high)
     dir_thresh = (dir_thresh_low, dir_thresh_high)
     s_thresh = (s_thresh_low, s_thresh_high)
+
+    # abs_threshx = (199, 255)
+    # abs_threshy = (160, 233)
+    # mag_thresh = (171, 255)
+    # dir_thresh = (70, 90)
+    # s_thresh =  (140, 255)
+
     ksize = 3 # Choose a larger odd number to smooth gradient measurements
     result = pipeline(image, ksize, abs_threshx, abs_threshy, mag_thresh, dir_thresh, s_thresh)
     res=cv2.bitwise_and(image,image,mask=result)
     cv2.imshow(window_capture_name, cv2.resize(image, (500, 300)))
-    cv2.imshow("result", cv2.resize(res, (500, 300)))
+    cv2.imshow("result", cv2.resize(result, (800, 600)))
     key = cv2.waitKey(70)
     if key == 27:
         cv2.destroyAllWindows()

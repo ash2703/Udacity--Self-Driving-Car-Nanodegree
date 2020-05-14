@@ -60,24 +60,9 @@ def pipeline(img, ksize, abs_threshx = (0, 255), abs_threshy = (0, 255),  mag_th
     sat_binary = sat_threshold(img, s_thresh)
     # print(np.max(sat_binary), sat_binary.shape)
     assert(gradx.shape == grady.shape == mag_binary.shape == dir_binary.shape == sat_binary.shape)
-    # plt.figure()
-    # plt.title('gradx')
-    # plt.imshow(gradx)
-    # plt.figure()
-    # plt.title('grady')
-    # plt.imshow(grady)
-    # plt.figure()
-    # plt.title('mag_binary')
-    # plt.imshow(mag_binary)
-    # plt.figure()
-    # plt.title('dir_binary')
-    # plt.imshow(dir_binary)
-    # plt.figure()
-    # plt.title('sat_binary')
-    # plt.imshow(sat_binary)
     
     combined = np.zeros_like(dir_binary)
-    combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1)) | (sat_binary ==1)] = 1
+    combined[(((gradx == 1) & (grady == 1)) & ((mag_binary == 1) & (dir_binary == 1))) | (sat_binary ==1)] = 1
 
     return np.array(combined * 255, dtype = np.uint8)
 
