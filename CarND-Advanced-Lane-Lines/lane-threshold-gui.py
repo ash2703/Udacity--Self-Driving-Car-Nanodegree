@@ -144,7 +144,7 @@ while True:
     result = pipeline(image, ksize, abs_threshx, abs_threshy, mag_thresh, dir_thresh, s_thresh)
     res=cv2.bitwise_and(image,image,mask=result)
     cv2.imshow(window_capture_name, cv2.resize(image, (500, 300)))
-    cv2.imshow("result", cv2.resize(result, (800, 600)))
+    cv2.imshow("result", cv2.resize(result, (500, 300)))
     key = cv2.waitKey(70)
     if key == 27:
         cv2.destroyAllWindows()

@@ -20,6 +20,7 @@ The goals / steps of this project are the following:
 [image9]: ./examples/slide_histogram.png "Slide Histogram"
 [image10]: ./examples/differential-eqn.png "differential equation"
 [image11]: ./examples/formula.png "Simplified Formula"
+[image2]: ./examples/Trackbar-GUI.png "Trackbar GUI"
 
 [image12]: ./examples/second-derivative.png "Second order derivative"
 [video1]: ./project_video.mp4 "Video"
@@ -65,6 +66,10 @@ A combination of color and gradient thresholds is used to generate a binary imag
 * Saturation value in HLS color space
 
 ![alt text][outimage5]
+
+I created a trackbar GUI in order to calculate the thresholds for all these different features, the code can be found as `lane-threshold-gui.py`
+
+![alt text][image2]
 
 #### 3. Image Perspective Transform
 
