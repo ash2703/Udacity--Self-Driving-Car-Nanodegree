@@ -27,6 +27,12 @@ The goals / steps of this project are the following:
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
+[image0]: ./output_images/Corrected-image.png "Distortion Corrected image"
+[image1]: ./output_images/lane-detected-radius.png "Grayscale"
+[image2]: ./output_images/lane-detected.png "Lane Lines"
+[image3]: ./output_images/line-fitted.png "Canny Edges"
+[image4]: ./output_images/warped-image.png "Canny Edges"
+
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
