@@ -136,7 +136,7 @@ The function `detectLaneLine` takes an image as input and returns the finl outpu
 
 #### 1. Processing Videos
 
-Here's a [link to my video result][https://youtu.be/JsIDBm_kq0o]
+Here's a [link to my video result](https://youtu.be/JsIDBm_kq0o)
 
 ---
 
